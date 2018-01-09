@@ -14,3 +14,6 @@ CFLAGS		= -g
 all		    : main.c
 	-@echo "Building All"
 	$(CC) $(CFLAGS) main.c -o hwrng.exe
+
+clean:
+	del hwrng.*

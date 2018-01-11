@@ -41,6 +41,12 @@ int main (int argcount, char** args)
     byteCount = GetNumBytes(argcount, args);
     fileIndex = GetFileName(argcount, args);
 
+    if(byteCount == -1 && fileIndex == -1)
+    {
+        PrintUsage();
+        return -1;
+    }
+
     // ------------------------- Check if CPU supports RDRAND instruction
     if(!CheckHardwareAvailability())
     {
@@ -61,11 +67,11 @@ int main (int argcount, char** args)
     for(int i=0; i<paddedLength / sizeof(unsigned long long); i++)
     {
         GetHardware64(randomNumber);
-        if(fileIndex < 0)
-            printf("%d) %#018llx\n", i, *randomNumber);
         randomNumber++;
     }
     printf("...done\n");
+
+    
     if(fileIndex > -1 )
     {
         printf("Writing %d random bytes to file", byteCount);
@@ -74,12 +80,23 @@ int main (int argcount, char** args)
         char* byte = (char*)buffer;
         for(int i=0; i<byteCount; i++)
         {
+            printf("%d ", i);
             fputc(byte[i], outfile);
         }   
 
         fclose(outfile);
         printf("...done");
     }
+    else
+    {
+        printf("Writing %d Random Bytes:\n", byteCount);
+        unsigned int* number = (unsigned int*)buffer;
+        for(int i=0; i<byteCount / sizeof(unsigned int); i++)
+        {
+            printf("%u\n", number[i]);
+        }  
+    }
+
 
     free(buffer);
 

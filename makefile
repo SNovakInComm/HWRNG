@@ -6,27 +6,21 @@
 #        01.05.2018
 # -------------------------
 
-# ----- Folder Options
-BIN			= bin
-TEMP		= tmp
-
 # ----- Compiler Options
 CC 		    = clang
 CFLAGS		= -g
 
 # ----- Main Targets
-all		    : main.c obj dirs
-	-@echo "Building All"
-	$(CC) $(CFLAGS) main.c hwrng.o -o $(BIN)/hwrng.exe
-
-dirs		: 
-	-@mkdir $(BIN)
-	-@mkdir $(TEMP)
+all		    : main.c obj
+	-@echo Building All
+	$(CC) $(CFLAGS) main.c hwrng.o -o hwrng.exe
 
 obj			: hwrng.h hwrng.c
-	-@echo "Building HWRNG"
-	$(CC) $(CFLAGS) hwrng.c -o $(TEMP)/hwrng.o
+	-@echo Building HWRNG
+	$(CC) $(CFLAGS) -c hwrng.c -o hwrng.o
 
 clean:
-	-@del $(BIN)/*.*
-	-@del $(TEMP)/*.*
+	-@del hwrng.pdb
+	-@del hwrng.exe
+	-@del hwrng.ilk
+	-@del hwrng.o

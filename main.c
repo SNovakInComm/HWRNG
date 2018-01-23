@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "hwrng.h"
 
 // ------------------------- UI Declarations
@@ -17,6 +18,8 @@ void PrintUsage();
 
 int GetNumBytes(int, char**);
 int GetFileName(int, char**);
+int GetIntFlag(int, char**);
+int GetFloatFlag(int, char**);
 
 // --------------------------------------------------
 // ------------------------- Main
@@ -26,6 +29,8 @@ int main (int argcount, char** args)
 {
     int byteCount = 0;
     int fileIndex = -1;
+    int floatFormat = 0;
+    int intFormat = 0;
     char* fileName;
 
     // ------------------------- Validate Input
@@ -37,6 +42,8 @@ int main (int argcount, char** args)
 
     byteCount = GetNumBytes(argcount, args);
     fileIndex = GetFileName(argcount, args);
+    floatFormat = GetFloatFlag(argcount, args);
+    intFormat = GetIntFlag(argcount, args);
 
     if(byteCount == -1 && fileIndex == -1)
     {
@@ -75,11 +82,29 @@ int main (int argcount, char** args)
         FILE *outfile;
         errno_t error = fopen_s(&outfile, args[fileIndex], "w");
         char* byte = (char*)buffer;
-        for(int i=0; i<byteCount; i++)
+        if(intFormat == 0 && floatFormat == 0)
         {
-            printf("%d ", i);
-            fputc(byte[i], outfile);
-        }   
+            for(int i=0; i<byteCount; i++)
+            {
+                fputc(byte[i], outfile);
+            } 
+        }
+        else
+        {
+            unsigned long long* intVersion = (unsigned long long *)buffer;
+
+            for(int i=0; i<byteCount / 64; i++)
+            {
+                if(intFormat)
+                    fprintf(outfile, "%llu", *intVersion);
+                if(intFormat & floatFormat)
+                    fprintf(outfile, ",");
+                if(floatFormat)
+                    fprintf(outfile, "%f", (double)((double)(*intVersion) / (double)ULONG_LONG_MAX));
+                fprintf(outfile, "\n");
+                intVersion++;
+            } 
+        }
 
         fclose(outfile);
         printf("...done");
@@ -115,7 +140,9 @@ void PrintUsage()
     printf("********************************************\n\n");
     printf("Usage: hwrng <options>\n\n");
     printf("-l <#>\t\t\t Number of bytes to generate\n");
-    printf("-o <filename>\t\t Output File Name\n\n");
+    printf("-o <filename>\t\t Output File Name\n");
+    printf("-i \t\t\t Format as integer\n");
+    printf("-f \t\t\t Format as float\n\n");
 }
 
 int GetNumBytes(int argcount, char** args)
@@ -133,6 +160,27 @@ int GetNumBytes(int argcount, char** args)
     }
     return numOfBytes;
 }
+
+int GetIntFlag(int argcount, char** args)
+{
+    for(int i=0; i<argcount; i++)
+    {
+        if(!strcmp(args[i], "-i"))
+            return 1;
+    }
+    return 0;
+}
+
+int GetFloatFlag(int argcount, char** args)
+{
+    for(int i=0; i<argcount; i++)
+    {
+        if(!strcmp(args[i], "-f"))
+            return 1;
+    }
+    return 0;
+}
+
 
 int GetFileName(int argcount, char** args)
 {

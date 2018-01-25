@@ -31,7 +31,6 @@ int main (int argcount, char** args)
     int fileIndex = -1;
     int floatFormat = 0;
     int intFormat = 0;
-    char* fileName;
 
     // ------------------------- Validate Input
     if(argcount < 2)
@@ -81,6 +80,13 @@ int main (int argcount, char** args)
         printf("Writing %d random bytes to file", byteCount);
         FILE *outfile;
         errno_t error = fopen_s(&outfile, args[fileIndex], "w");
+
+        if(error)
+        {
+            printf("Error opening file: %d", error);
+            return error;
+        }
+
         char* byte = (char*)buffer;
         if(intFormat == 0 && floatFormat == 0)
         {
@@ -184,7 +190,6 @@ int GetFloatFlag(int argcount, char** args)
 
 int GetFileName(int argcount, char** args)
 {
-    int index = -1;
     for(int i=0; i<argcount; i++)
     {
         if(!strcmp(args[i], "-o") && i < (argcount - 1))

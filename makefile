@@ -8,7 +8,7 @@
 
 # ----- Compiler Options
 CC 		    = clang
-CFLAGS		= -g
+CFLAGS		= -g -Wall
 
 # ----- Main Targets
 all		    : main.c obj
